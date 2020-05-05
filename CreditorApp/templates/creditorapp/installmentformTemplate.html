@@ -1,0 +1,187 @@
+{% extends 'creditorapp/mainTemplate.html' %}
+
+
+{% block main %}
+    <script>
+    $(document).ready(function () {
+            var alert = $('.alert');
+            $('#discountT,#fineT,#amount').keyup(function () {
+                     alert.css({'display':'none'});
+            });
+        //radio button action
+        $('#Rinstallment').click(function () {
+                        alert.css({'display':'none'});
+                     $('#amount').attr({'type':'number','class':'form-control G1'});
+                     $('#discountT,#fineT').attr({'type':'hidden','class':'form-control'}).val(0);
+                     $('#amountL').css({'display':'block'});
+                      $('#disountL,#fineL').css({'display':'none'});
+        });
+        $('#Rdiscount').click(function () {
+            alert.css({'display':'none'});
+                     $('#discountT').attr({'type':'number','class':'form-control G1'});
+                       $('#disountL').css({'display':'block'});
+                     $('#amount,#fineT').attr({'type':'hidden','class':'form-control'}).val(0);
+                       $('#amountL,#fineL').css({'display':'none'});
+        });
+        $('#Rfine').click(function () {
+            alert.css({'display':'none'});
+                     $('#fineT').attr({'type':'number','class':'form-control G1'});
+                      $('#fineL').css({'display':'block'});
+                       $('#amount,#discountT').attr({'type':'hidden','class':'form-control'}).val(0);
+                          $('#amountL,#disountL').css({'display':'none'});
+        });
+
+        //function start
+        function pageCheck(){
+
+
+            }
+        // function ends
+          $("#button").click(function () {
+            alert.css({'display':'none'});
+
+        if($('#message').html() === 'You may continue.' && $('#date').val() !=='' && $('.G1').val() !=='0'){
+                $.ajax({
+                   type:'GET',
+                   url:"{% url 'installmentdata' %}",
+                   data:{'page':$("#page").val().trim(),'date':$("#date").val().trim(),'amount':$("#amount").val().trim(),'discount':$('#discountT').val().trim(),'fine':$('#fineT').val().trim()},
+                   success:function (data) {
+                                $("#message").html(data['success']);
+                   }
+               });     //end ajax
+        } else {
+             $('.alert').css({'display':'block'});
+        }
+          });
+         $("#page").keyup(function () {
+                         $('.alert').css({'display':'none'});
+                        $('.summaryTable,#balance,#balance1').empty();
+               $.ajax({
+                   type:'GET',
+                   url:"{% url 'installmentpagecheck' %}",
+                   data:{'page':$("#page").val().trim()},
+                   success:function (data) {
+                            message= $("#message");
+                         (message).html(data['success']);
+                if($('#page').val()===''){(message).html('');}
+
+                         loopCount= data.data1.length;
+                        dr1=0; adv=0;inst=0;dis=0;fine =0;
+           $(".summaryTable").html("<table class=\"table\"  id=\"summaryTable\">\n" +
+               "  <thead class=\"thead-dark\">\n" +
+               "    <tr>\n" +
+               "      <th scope=\"col\">DR</th>\n" +
+               "      <th scope=\"col\">AD</th>\n" +
+               "      <th scope=\"col\">DATE</th>\n" +
+               "      <th scope=\"col\">INST</th>\n" +
+               "          <th scope=\"col\">DIS</th>\n" +
+               "          <th scope=\"col\">FIN</th>\n" +
+               "    </tr>\n" +
+               "  </thead><tbody id='tbody1'></tbody><tfoot id=\"tfoot\"><tr><td id=\"Fdr\"></td><td id=\"Fad\"></td><td></td><td id=\"Finst\"></td><td id=\"Fdis\"></td><td id=\"Ffine\"></td></tr></tfoot>\n" +
+               "        </table>");
+                         for(i=0; i<loopCount; i++) {
+                              date=""; dr=""; advance="";
+
+                             if(i===0){ dr=data.data1[0][2];}
+                             if(i===0){ advance=data.data1[0][3];}
+                             dr1 = data.data1[0][2];
+                             adv=data.data1[0][3];          //data.data1[rowindex][columnindex]
+                             inst += data.data1[i][4];
+                             dis += data.data1[i][5];
+                             fine += data.data1[i][6];
+                             $("#tbody1").append('<tr><td>'+ dr +'</td><td>'+ advance +'</td><td>'+ data.data1[i][0] +'</td><td>'+data.data1[i][4] +'</td><td>'+data.data1[i][5] +'</td><td>'+data.data1[i][6] +'</td></tr>')
+                         }
+                        $('#Fdr').html(dr1);  $('#Fad').html(adv);  $('#Finst').html(inst);  $('#Fdis').html(dis);  $('#Ffine').html(fine);
+                       $('#balance').html('Balance:');
+                        $('#balance1').html((dr1+fine)-(adv+inst+dis));
+
+
+
+
+
+                   }
+               });
+          });
+    });
+    </script>
+    <div class="col-md-4" id="col"></div>
+    <style>#col,#col1{ margin-top: 5%;} .card-header{ font-size: 170%}
+        #amountL,#disountL,#fineL,.alert{display: none;}
+
+    </style>
+   <div class="col-md-4" id="col">
+    <div class="card">
+<h1 class="card-header text-center text-uppercase font-weight-bold">Installment Form</h1>
+<div class="card-body">    <form >
+    {% csrf_token %}
+    <div class="alert alert-danger" role="alert" >
+  Data will not save. Please fill all fields carefully..
+</div>
+    <div class="form-group" >
+        <label for="page">Page:</label>
+        <input type="text" class="form-control text-uppercase" id="page" name="page">
+         <span id="message" class="alert-danger" style="display: block"></span>
+    </div>
+<div class="form-group">
+        <label for="date">Date:</label>
+       <input type="date" name="date" id="date" class="form-control">
+    </div>
+{#    start radio button#}
+    <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" class="custom-control-input" name="customRadio" id="Rinstallment">
+            <label class="custom-control-label" for="Rinstallment">Installment</label>
+        </div>
+        <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" class="custom-control-input" name="customRadio" id="Rdiscount"  >
+            <label class="custom-control-label" for="Rdiscount">Discount</label>
+        </div>
+        <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" class="custom-control-input" name="customRadio" id="Rfine" >
+            <label class="custom-control-label" for="Rfine">Fine</label>
+        </div>
+
+{#    end radio button#}
+
+
+<p></p>  {#this was create for gap between radio button textfields#}
+
+    <div class="form-group">
+
+        <label for="amount" id="amountL">Amount:</label>
+        <input type="hidden" class="form-control " id="amount" name="amount" value="0" >
+    </div>
+     <div class="form-group">
+        <label for="discountT" id="disountL">Discount:</label>
+        <input type="hidden" class="form-control " id="discountT" name="discount" value="0" >
+    </div>
+ <div class="form-group">
+        <label for="fineT" id="fineL">Fine:</label>
+        <input type="hidden" class="form-control " id="fineT" name="fine" value="0" >
+    </div>
+
+
+
+<button type="button" class="btn bg-success" id="button">Submit</button>
+
+
+</form></div>
+    </div>
+</div>
+    <div class=" col-md-4" id="col1">
+    <div class="summaryTable"></div>
+
+
+
+        <div class="row" ><div class="col-md-5" id="balance"></div><div class="col-md-3" id="balance1"></div></div>
+
+
+
+
+    </div>
+    <style>
+    table {
+        font-size: x-small;
+    }
+    </style>
+
+{% endblock %}

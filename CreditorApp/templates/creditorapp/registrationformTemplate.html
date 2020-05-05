@@ -1,0 +1,117 @@
+{% extends 'creditorapp/mainTemplate.html' %}
+{% block main %}
+    <script>
+    $(document).ready(function () {
+
+        //---------------------------------------------------------------------
+
+        //---------------------------------------------------------------------
+
+
+        $("#button").click(function () {
+
+                var cell = $("#cell").val().trim();
+                var name = $("#name").val().trim();
+                var date = $("#date").val().trim();
+                var father = $("#father").val().trim();
+                var address = $("#address").val().trim();
+                var password = $("#password").val().trim();
+if(cell!=="" && name!=="" && date!=="" && father!=="" && address!=="" && password !==""){
+               $.ajax({
+                        type:'GET',
+                        url: "{% url 'registrationajax' %}",
+                        data:{'cell':cell,'name':name,'father':father,'date':date,'address':address,'password':password},
+                        dataType:'JSON',
+                        success:function (data) {
+
+                    $("#message").html(data['success']);
+                                   setTimeout(function() {
+          window.location.href = "{% url 'advancemotorcycel' %}"; }, 2000);
+                        },
+                        error:function (xhr,status,error) {
+                                          var err = eval("(" + xhr.responseText + ")");
+                                            alert(xhr.responseText);
+                        }
+                   });}else {
+
+            $('#alert1').css({'display':'block'});
+}
+        });
+        //-------------------------------------------------------------------------------------------------
+        $("#cell").keyup(function () {
+
+                var cell = $(this).val().trim();
+
+
+               $.ajax({
+                        type:'GET',
+                        url: "{% url 'usernamecheck' %}",
+                        data:{'cell':cell},
+                        dataType:'JSON',
+                        success:function (data) {
+
+                                    $("#message").html(data['success']);
+                        },
+                        error:function (xhr,status,error) {
+                                          var err = eval("(" + xhr.responseText + ")");
+                                            alert(xhr.responseText);
+                        }
+                   });
+        });
+
+        $('#cell,#date,#name,#father,#address,#password').keyup(function () {
+                $('#alert1').css({'display':'none'});
+
+        });
+    });
+    </script>
+    <style>#col{margin-top: 2%;}</style>
+<div class="col-md-6" id="col">
+<div class="card">
+<div class="card-body">
+    <div class="card-header "><h1 class="text-center text-uppercase">Registration Form</h1></div>
+{#        alert start#}
+    <div class="alert alert-primary" role="alert" id="alert1" style="display: none;">
+  This is a primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+</div>
+
+{#    alert end#}
+    <form action="">
+
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="cell">Cell:</label>
+            <input type="text" class="form-control" id="cell" name="cell">
+            <span id="message" class="  alert-danger" style="display: block;"></span>
+        </div>
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" class="form-control" id="date" name="date">
+        </div>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control text-uppercase" id="name" name="name">
+        </div>
+        <div class="form-group">
+            <label for="father">Father:</label>
+            <input type="text" class="form-control text-uppercase" id="father" name="father">
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address:</label>
+            <textarea id="address" name="address" class="form-control" rows="5">Kamalia</textarea>
+        </div>
+        <div class="form-group" >
+			<label for="password" id="pl">Password:</label>
+			<input type="password" id="password" name="password" class="form-control" data-toggle="password">
+		</div>
+
+        <input type="button" class="btn-block bg-success btn-lg" value="Submit" id="button">
+    </form>
+</div>
+</div>
+
+
+</div>
+
+{% endblock %}

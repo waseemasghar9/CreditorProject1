@@ -1,0 +1,161 @@
+{% extends 'creditorapp/mainTemplate.html' %}
+
+{% block main %}
+    <script>
+    $(document).ready(function () {
+
+
+
+
+
+
+
+        $("#button").click(function () {
+
+        var bmodel = $("#bmodel").children('option:selected').val().trim();
+        var page = $("#page").val().trim();
+        var cell = $("#cell").val().trim();
+        var date = $("#date").val().trim();
+        var drate = $("#drate").val().trim();
+        var advance = $("#advance").val().trim();
+        var month = $("#month").val().trim();
+        var day = $("#day").val().trim();
+        $.ajax({
+            type:'GET',
+            url:"{% url 'advancemotorcyceldata' %}",
+            data:{'cell':cell,'bmodel':bmodel,'page':page,'date':date,'drate':drate,'advance':advance,'month':month,'day':day},
+            dataType:'JSON',
+            success:function (data) {
+
+
+                        $("#cell").val("");
+
+                                  $("#message").html(data['success']);
+            }
+
+        });
+
+        });
+        //---------------------------------------------------------------
+        $("#cell,#page").keyup(function () {
+        var page = $("#page").val().trim();
+        var cell = $("#cell").val().trim();
+
+
+        $.ajax({
+            type:'GET',
+            url:"{% url 'Cell_PageExist' %}",
+            data:{'cell':cell,'page':page},
+            dataType:'JSON',
+            success:function (data) {
+                                var page = data['page'];
+                                var cell= data['cell'];
+
+                                if (cell === "cell"){
+                                    $("#cellmessage").html("This cell number exists you may continue?");
+                                }
+                                else {
+
+                                     $("#cellmessage, #message").html("");
+                                }
+                                if (page === "page"){
+                                     $("#pagemessage").html("This page number exists you will not able to save data. Please change page number");
+                                } else {
+
+                                       $("#pagemessage, #message").html("");
+
+                                }
+                                if(data['success']==='success'){
+                                     $('input[type=text], input[type=date], input[type=number],select').val("");
+                                    $("#cellmessage").html("Data save successfull");
+
+                                }
+
+            }
+
+        });
+
+        });
+        //-------------------------------
+        $("#test").click(function () {
+                        $('input[type=text], input[type=date], input[type=number],select').val("");
+                             $("#cellmessage, #message,#pagemessage").html("");
+        });
+
+    });
+</script>
+    <style>#col{margin-top: 2%;}</style>
+   <div class="col-md-5" id="col">
+<div class="card">
+<div class="card-body">
+    <div class="card-header text-uppercase text-center"><h1>Advance Form</h1></div>
+
+    <form action="" id="formid">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="cell">Cell:</label>
+            <input type="text" class="form-control" id="cell" name="cell" required>
+            <span id="cellmessage" class="alert-danger" style="display: block"></span>
+
+        </div>
+        <div class="form-group">
+            <label for="date">Date:</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+        <div class="form-group">
+            <label for="page">Page:</label>
+            <input type="text" class="form-control text-uppercase" id="page" name="page" required>
+            <span id="pagemessage" class="alert-danger" style="display: block"></span>
+        </div>
+        <div class="form-group">
+            <label for="bmodel">Bike Model:</label>
+            <select id="bmodel" class="form-control" required>
+                <option value="">Please select model</option>
+                <option value="CD70">CD70</option>
+                <option value="CDDream">CDDream</option>
+                <option value="Pridor">Pridor</option>
+                <option value="CG125">CG125</option>
+                <option value="CG125S">CG125S</option>
+                <option value="CG125SSE">CG125SSE</option>
+                <option value="CB125F">CB125F</option>
+                <option value="CB125FSE">CB125FSE</option>
+                <option value="CB150F">CB150F</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="drate">Decided Rate:</label>
+            <input type="number" id="drate" name="drate" class="form-control" required>
+        </div>
+        <div class="form-group">
+			<label for="advance">Advance:</label>
+			<input type="number" id="advance" name="advance" class="form-control" required>
+		</div>
+        <div class="row"><div class="col-md-6 col-sm-6">
+
+            <div class="form-group">
+			<label for="month">Month:</label>
+			<input type="number" id="month" name="month" class="form-control" required>
+		</div>
+		</div>
+            <div class="col-md-6 col-sm-6">
+
+            <div class="form-group">
+			<label for="day" id="dayL">Day:</label>
+			<input type="number" id="day" name="day" class="form-control" required>
+		</div>
+		</div>
+            </div>
+
+
+         <span id="message" class="alert-danger" style="display: block"></span>
+        <input type="button" class="btn-block bg-success btn-lg" value="Submit" id="button">
+        <a  class="btn-link" href="" id="test">Clear Form</a>
+    </form>
+</div>
+</div>
+</div>
+
+
+{% endblock %}
